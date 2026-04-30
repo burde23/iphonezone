@@ -1731,27 +1731,8 @@ footer{background:#2c2c2e;padding:72px 48px 40px;border-top:1px solid rgba(255,2
 <div id="filter-strip">
   <div class="filter-strip-inner">
     <span class="filter-eyebrow">Filtrar</span>
-    <div class="filter-btns">
-      <button class="filter-btn active" onclick="filterProductsStrip('all',this)">
-        <div class="filter-btn-glass"></div>
-        <span class="filter-btn-label">Todos</span>
-      </button>
-      <button class="filter-btn" onclick="filterProductsStrip('equipos',this)">
-        <div class="filter-btn-glass"></div>
-        <span class="filter-btn-label">Equipos</span>
-      </button>
-      <button class="filter-btn" onclick="filterProductsStrip('accesorios',this)">
-        <div class="filter-btn-glass"></div>
-        <span class="filter-btn-label">Accesorios</span>
-      </button>
-      <button class="filter-btn" onclick="filterProductsStrip('cargadores',this)">
-        <div class="filter-btn-glass"></div>
-        <span class="filter-btn-label">Cargadores</span>
-      </button>
-      <button class="filter-btn" onclick="filterProductsStrip('combos',this)">
-        <div class="filter-btn-glass"></div>
-        <span class="filter-btn-label">Combos</span>
-      </button>
+    <div class="filter-btns" id="filter-btns">
+      <!-- Renderizado dinámicamente desde D1 -->
     </div>
   </div>
 </div>
@@ -2116,44 +2097,7 @@ footer{background:#2c2c2e;padding:72px 48px 40px;border-top:1px solid rgba(255,2
 
 <script>
 /* ═══════════════ DATA ═══════════════ */
-// Fallback por si la API no responde
-const PRODUCTS_FALLBACK = [
-  { id:1, name:"Funda Silicona Negra", stor:"Compatible con todos los modelos",
-    ars:12999, usd:null, badge:"b-sale", btxt:"19% OFF",
-    stock:"En stock", low:false, color:"#1d1d1f", cat:"accesorios",
-    url:"https://iphonezone2.mitiendanube.com/productos/funda-silicona-negra/",
-    img:"https://dcdn-us.mitiendanube.com/stores/006/109/273/products/img_0497-bdf84a26d57a38edfa17458998822874-480-0.webp" },
-  { id:2, name:"Funda MagSafe", stor:"Compatible iPhone 12 en adelante",
-    ars:12999, usd:null, badge:"b-sale", btxt:"19% OFF",
-    stock:"En stock", low:false, color:"#3a3a3c", cat:"accesorios",
-    url:"https://iphonezone2.mitiendanube.com/productos/funda-magsafe/",
-    img:"https://dcdn-us.mitiendanube.com/stores/006/109/273/products/img_0501-33c6527d103a1e01b917459473771123-480-0.webp" },
-  { id:3, name:"Cabezal 20W tipo-C", stor:"Carga Rápida · USB-C",
-    ars:50500, usd:null, badge:"b-sale", btxt:"8% OFF",
-    stock:"En stock", low:false, color:"#e8e8e0", cat:"cargadores",
-    url:"https://iphonezone2.mitiendanube.com/productos/cabezal-20w-tipo-c-carga-rapida/",
-    img:"https://dcdn-us.mitiendanube.com/stores/006/109/273/products/img_0503-d70ab357eceba5203f17459479361582-480-0.webp" },
-  { id:4, name:"MagSafe", stor:"Cargador inalámbrico 15W",
-    ars:27000, usd:null, badge:"b-sale", btxt:"23% OFF",
-    stock:"En stock", low:false, color:"#c5b99a", cat:"cargadores",
-    url:"https://iphonezone2.mitiendanube.com/productos/magsafe/",
-    img:"https://dcdn-us.mitiendanube.com/stores/006/109/273/products/img_0505-e0f73bb7346e34db2f17459482323192-480-0.webp" },
-  { id:5, name:"Combo AirPods Pro + Battery Pack", stor:"Pack especial · Ahorrás más",
-    ars:69500, usd:null, badge:"b-pop", btxt:"Pack especial",
-    stock:"En stock", low:false, color:"#4a7fa8", cat:"combos",
-    url:"https://iphonezone2.mitiendanube.com/productos/combo-airpods-pro-battery-pack/",
-    img:"https://dcdn-us.mitiendanube.com/stores/006/109/273/products/img_0499-6ae2875dfa1924b3dd17459482987626-480-0.webp" },
-  { id:6, name:"Equipos Sellados", stor:"Nuevos · Originales · Con garantía",
-    ars:null, usd:null, badge:"b-new", btxt:"Nuevo",
-    stock:"Consultá stock", low:true, color:"#d4c8b8", cat:"equipos",
-    url:"https://iphonezone2.mitiendanube.com/equipos/equipos-sellados/", img:null },
-  { id:7, name:"Equipos Seminuevos", stor:"Revisados · Testeados · Garantía",
-    ars:null, usd:null, badge:"b-pop", btxt:"Seminuevo",
-    stock:"Consultá stock", low:true, color:"#8e8e93", cat:"equipos",
-    url:"https://iphonezone2.mitiendanube.com/equipos/equipos-seminuevos1/", img:null },
-];
-
-// Array vivo — se llena desde D1 al cargar, fallback si falla
+// Se carga desde D1 — vacío hasta que la API responda
 let PRODUCTS = [];
 
 async function loadProducts() {
@@ -2177,12 +2121,12 @@ async function loadProducts() {
         url:   p.url,
         img:   p.img   ?? null,
       }));
-      return;
     }
+    // Si la API no devuelve productos, PRODUCTS queda vacío [] — no hay fallback
   } catch (err) {
-    console.warn('[iPhone Zone] API no disponible, usando productos locales:', err.message);
+    console.warn('[iPhone Zone] API no disponible:', err.message);
+    // PRODUCTS queda [] — la grilla se muestra vacía hasta que D1 responda
   }
-  PRODUCTS = PRODUCTS_FALLBACK;
 }
 
 const REVIEWS = [
@@ -2264,6 +2208,24 @@ function filterProducts(f){
     t.classList.toggle('active', t.dataset.filter===f);
   });
   document.querySelector('#prods').scrollIntoView({behavior:'smooth'});
+}
+
+function renderFilterStrip(){
+  const catLabels = {equipos:'Equipos',accesorios:'Accesorios',cargadores:'Cargadores',combos:'Combos'};
+  // Obtener categorías únicas de los productos cargados desde D1
+  const cats = [...new Set(PRODUCTS.map(p => p.cat))];
+  const container = document.getElementById('filter-btns');
+  if(!container) return;
+  container.innerHTML =
+    `<button class="filter-btn active" onclick="filterProductsStrip('all',this)">
+      <div class="filter-btn-glass"></div>
+      <span class="filter-btn-label">Todos</span>
+    </button>` +
+    cats.map(cat => `
+    <button class="filter-btn" onclick="filterProductsStrip('${cat}',this)">
+      <div class="filter-btn-glass"></div>
+      <span class="filter-btn-label">${catLabels[cat]||cat}</span>
+    </button>`).join('');
 }
 
 function filterProductsStrip(f, btn){
@@ -2659,7 +2621,6 @@ dots.forEach((dot, i) => {
 });
 
 /* ═══════════════ OFFER SLIDER ═══════════════ */
-const OFFER_PRODUCTS = PRODUCTS.filter(p => p.badge === 'b-sale');
 const OFFER_OLD = { 1: 15999, 2: 15999, 3: 55000, 4: 35000 };
 const catLabels2 = {equipos:'Equipos',accesorios:'Accesorios',cargadores:'Cargadores',combos:'Combos'};
 
@@ -2668,7 +2629,7 @@ function renderOfferSlider(){
   const dotsEl = document.getElementById('offer-dots');
   if(!track) return;
 
-  track.innerHTML = OFFER_PRODUCTS.map((p,i)=>{
+  track.innerHTML = PRODUCTS.filter(p => p.badge === 'b-sale').map((p,i)=>{
     const old = OFFER_OLD[p.id];
     const saveAmt = old ? Math.round((1 - p.ars/old)*100) : null;
     const badgeCls = p.badge === 'b-sale' ? 'op-b-sale' : p.badge === 'b-pop' ? 'op-b-pop' : 'op-b-new';
@@ -2699,7 +2660,7 @@ function renderOfferSlider(){
     </div>`;
   }).join('');
 
-  dotsEl.innerHTML = OFFER_PRODUCTS.map((_,i)=>
+  dotsEl.innerHTML = PRODUCTS.filter(p => p.badge === 'b-sale').map((_,i)=>
     `<button class="os-dot ${i===0?'active':''}" onclick="goOfferSlide(${i})" aria-label="Producto ${i+1}"></button>`
   ).join('');
 
@@ -2720,7 +2681,7 @@ let offerIdx = 0;
 let offerTimer;
 
 function goOfferSlide(next){
-  offerIdx = ((next % OFFER_PRODUCTS.length) + OFFER_PRODUCTS.length) % OFFER_PRODUCTS.length;
+  offerIdx = ((next % PRODUCTS.filter(p => p.badge === 'b-sale').length) + PRODUCTS.filter(p => p.badge === 'b-sale').length) % PRODUCTS.filter(p => p.badge === 'b-sale').length;
   const track = document.getElementById('offer-track');
   if(track){
     if(window.innerWidth <= 900){
@@ -2748,9 +2709,10 @@ document.getElementById('offer-next')?.addEventListener('click',()=>{
 /* ═══════════════ INIT ═══════════════ */
 (async () => {
   await loadProducts();   // carga desde D1 (o fallback local si falla)
+  renderFilterStrip();    // botones de categoría desde D1
   renderProducts();
   renderReviews();
-  renderOfferSlider();    // re-render con los productos reales de D1
+  renderOfferSlider();    // solo productos con badge b-sale
   startOfferTimer();
 })();
 </script>
