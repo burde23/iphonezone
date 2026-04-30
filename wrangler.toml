@@ -1,0 +1,30 @@
+# ═══════════════════════════════════════════════
+#  iPhone Zone · wrangler.toml
+#  Cloudflare Pages + D1 Database
+# ═══════════════════════════════════════════════
+
+name = "iphonezone"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "."
+
+# ── D1 Database binding ──────────────────────────
+# Después de crear la DB con:
+#   wrangler d1 create iphonezone-db
+# Reemplazá el database_id con el ID que te devuelva ese comando.
+
+[[d1_databases]]
+binding      = "DB"          # nombre que usás en las Functions: env.DB
+database_name = "iphonezone-db"
+database_id  = "2dfdc1cc-1295-4e51-8233-9d792ecce038"
+
+# ── Variables de entorno ─────────────────────────
+[vars]
+ADMIN_SECRET = "REEMPLAZAR-CON-UNA-CLAVE-SECRETA"   # protege el admin
+STORE_NAME   = "iPhone Zone"
+
+# ── Entorno de preview (desarrollo local) ───────
+[env.preview]
+[[env.preview.d1_databases]]
+binding       = "DB"
+database_name = "iphonezone-db"
+database_id   = "2dfdc1cc-1295-4e51-8233-9d792ecce038"
