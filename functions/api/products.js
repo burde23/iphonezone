@@ -23,11 +23,13 @@ export async function onRequestGet({ request, env }) {
     // Normalizar booleans (SQLite devuelve 0/1)
     const products = results.map(p => ({
       ...p,
-      low:    p.low    === 1,
-      active: p.active === 1,
-      ars:    p.ars    ?? null,
-      usd:    p.usd    ?? null,
-      img:    p.img    ?? null,
+      low:       p.low    === 1,
+      active:    p.active === 1,
+      ars:       p.ars       ?? null,
+      ars_old:   p.ars_old   ?? null,
+      usd:       p.usd       ?? null,
+      img:       p.img       ?? null,
+      offer_end: p.offer_end ?? null,
     }));
 
     return json({ ok: true, products });
